@@ -15,20 +15,22 @@ from dog import (
 from models import Base, Dog
 from testing.conftest import db_dir, SQLITE_URL
 
+
 class TestModels:
     '''lib/models.py'''
 
     def test_has_name_and_breed_attributes(self):
         '''contains model "Dog" with name and breed attributes.'''
         dog = Dog(name="joey", breed="cocker spaniel")
-        assert(dog.name == "joey" and dog.breed == "cocker spaniel")
+        assert (dog.name == "joey" and dog.breed == "cocker spaniel")
+
 
 class TestDog:
     '''lib/dog.py'''
 
     def test_creates_table(self):
         '''contains function "create_table()" that takes a declarative_base and creates a SQLite database.'''
-        
+
         engine = create_engine(SQLITE_URL)
         create_table(Base, engine)
         assert os.path.exists(db_dir)
@@ -41,7 +43,7 @@ class TestDog:
         Base.metadata.create_all(engine)
         Session = sessionmaker(bind=engine)
         session = Session()
-        
+
         joey = Dog(name="joey", breed="cocker spaniel")
         save(session, joey)
 
@@ -65,33 +67,32 @@ class TestDog:
 
         all_dogs = get_all(session)
         assert all_dogs[0].name == 'fanny' and \
-                all_dogs[1].name == 'conan'
-        
+            all_dogs[1].name == 'conan'
+
         session.query(Dog).delete()
         session.commit()
         os.remove(db_dir)
 
-
     def test_finds_by_name(self):
         '''contains function "find_by_name()" that takes a session and name and returns a Dog instance corresponding to its database record retrieved by name.'''
-        
+
         engine = create_engine(SQLITE_URL)
         Base.metadata.create_all(engine)
         Session = sessionmaker(engine)
         session = Session()
-        
+
         dog = Dog(name="conan", breed="chihuahua")
         session.add(dog)
         session.commit()
-        
+
         conan = find_by_name(session, 'conan')
-        assert(conan.name == 'conan')
+        assert (conan.name == 'conan')
 
         os.remove(db_dir)
 
     def test_finds_by_id(self):
         '''contains function "find_by_id()" that takes a session and id and returns a Dog instance corresponding to its database record retrieved by id.'''
-        
+
         engine = create_engine(SQLITE_URL)
         Base.metadata.create_all(engine)
         Session = sessionmaker(engine)
@@ -100,7 +101,7 @@ class TestDog:
         dog = Dog(name="conan", breed="chihuahua")
         session.add(dog)
         session.commit()
-        
+
         dog_1 = find_by_id(session, dog.id)
         assert dog_1.id == dog.id
         assert dog_1.name == 'conan'
@@ -110,16 +111,16 @@ class TestDog:
 
     def test_finds_by_name_and_breed(self):
         '''contains function "find_by_name_and_breed()" that takes a session, a name, and a breed as arguments and returns a Dog instance matching that record.'''
-        
+
         engine = create_engine(SQLITE_URL)
         Base.metadata.create_all(engine)
         Session = sessionmaker(engine)
-        session = Session() 
-        
+        session = Session()
+
         dog = Dog(name="fanny", breed="cockapoo")
         session.add(dog)
         session.commit()
-        
+
         fanny = find_by_name_and_breed(session, 'fanny', 'cockapoo')
         assert fanny.name == 'fanny' and fanny.breed == 'cockapoo'
 
@@ -127,12 +128,12 @@ class TestDog:
 
     def test_updates_record(self):
         '''contains function "update_breed()" that takes a session instance, and breed as arguments and updates the instance's breed.'''
-        
+
         engine = create_engine(SQLITE_URL)
         Base.metadata.create_all(engine)
         Session = sessionmaker(engine)
-        session = Session() 
-        
+        session = Session()
+
         dog = Dog(name="joey", breed="cocker spaniel")
         session.add(dog)
         session.commit()
@@ -140,7 +141,7 @@ class TestDog:
         joey = session.query(Dog).filter_by(name='joey').first()
         update_breed(session, joey, 'bulldog')
         updated_record = session.query(Dog).filter_by(name='joey').first()
-        
+
         assert updated_record.breed == 'bulldog'
-        
+
         os.remove(db_dir)
